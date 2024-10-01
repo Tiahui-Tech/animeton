@@ -1,0 +1,28 @@
+{
+  "projectName": "animeton",
+  "projectOwner": "eKoh951",
+  "repoType": "github",
+  "repoHost": "https://github.com/eKoh951/Animerso.Online",
+  "files": ["README.md"],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "iAsure",
+      "name": "Rafael Ayala",
+      "avatar_url": "https://avatars.githubusercontent.com/u/78936992?v=4",
+      "profile": "https://i.asure.dev/",
+      "contributions": ["infra", "code"]
+    },
+    {
+      "login": "eKoh951",
+      "name": "eKoh - Erick Ponce",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9522251?v=4",
+      "profile": "https://github.com/eKoh951",
+      "contributions": ["infra", "code"]
+    }
+  ],
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributorsPerLine": 7
+}
