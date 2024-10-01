@@ -17,7 +17,7 @@ function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
-    height: 670,
+    height: 900,
     // show: false,
     // autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -39,7 +39,7 @@ function createWindow(): void {
 
   webTorrentProcess.on('message', (message) => {
     if (message.type === 'server-ready') {
-      webTorrentPort = message.port
+      webTorrentPort = message.port as number
       setupCSP(webTorrentPort)
     }
 
