@@ -31,8 +31,6 @@ async function handleAddTorrent(torrentId) {
     const fileName = encodeURIComponent(torrent.files[0].name)
     const url = `http://localhost:${instance.server.address().port}/webtorrent/${torrent.infoHash}/${fileName}`
 
-    console.log(url)
-
     torrent.on('done', () => {
       process.parentPort?.postMessage({ type: 'torrent-done' })
       process.parentPort?.postMessage({

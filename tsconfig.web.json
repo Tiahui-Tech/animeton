@@ -15,9 +15,17 @@
     "baseUrl": ".",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
     "paths": {
       "@renderer/*": [
         "src/renderer/src/*"
+      ],
+      "@utils/*": [
+        "src/renderer/src/utils/*"
+      ],
+      "@controllers/*": [
+        "src/renderer/src/controllers/*"
       ]
     }
   }

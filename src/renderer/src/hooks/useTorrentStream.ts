@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { checkForSubtitles } from '@controllers/subtitles.controller'
 
 function useTorrentStream(torrentId: string) {
   const [torrent, setTorrent] = useState<any>(null)
@@ -40,6 +41,9 @@ function useTorrentStream(torrentId: string) {
     const handleTorrentServerDone = (event: any, data: any) => {
       const { url } = data
       const player = document.querySelector<HTMLVideoElement>('#output')
+
+      checkForSubtitles(url)
+
       if (player) {
         player.src = url
         player.play()
