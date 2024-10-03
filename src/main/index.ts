@@ -9,7 +9,8 @@ import {
 } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+import icon from '../../resources/icon.png'
+import { extractSubtitles } from './libs/subtitles'
 
 let webTorrentPort: number | null = null
 
@@ -24,12 +25,19 @@ function createWindow(): void {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true,
-      contextIsolation: true
+      contextIsolation: true,
+      nodeIntegration: false
     }
   })
 
   const webTorrentProcess = utilityProcess.fork('src/main/webtorrent.js')
-  
+
+  if (mainWindow.webContents.isDevToolsOpened()) {
+    mainWindow.webContents.closeDevTools()
+  } else {
+    mainWindow.webContents.openDevTools({ mode: 'detach' })
+  }
+
   // Now load the URL
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
@@ -40,7 +48,7 @@ function createWindow(): void {
   webTorrentProcess.on('message', (message) => {
     if (message.type === 'server-ready') {
       webTorrentPort = message.port as number
-      setupCSP(webTorrentPort)
+      // setupCSP(webTorrentPort)
     }
 
     if (message.type === 'torrent-progress') {
@@ -62,6 +70,16 @@ function createWindow(): void {
 
   ipcMain.on('webtorrent-action', (event, arg) => {
     webTorrentProcess.postMessage(arg)
+  })
+
+  ipcMain.on('extract-subtitles-request', async (event, { filePath, responseChannel }) => {
+    try {
+      const subtitles = await extractSubtitles(filePath)
+      event.reply(responseChannel, { subtitles })
+    } catch (error) {
+      console.error('Error extracting subtitles:', error)
+      event.reply(responseChannel, { error: (error as Error).message || 'Unknown error occurred' })
+    }
   })
 }
 
