@@ -29,7 +29,7 @@ export const extractSubtitles = async (
         stream: () => fs.createReadStream(filePath, { start, end: end - 1 }),
         arrayBuffer: async () => {
           const stream = fs.createReadStream(filePath, { start, end: end - 1 })
-          const chunks = []
+          const chunks: Buffer[] = []
           for await (const chunk of stream) {
             chunks.push(chunk)
           }

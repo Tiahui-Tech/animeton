@@ -10,7 +10,7 @@ export const useSubtitleExtractor = () => {
     setIsExtracting(true);
     setError(null);
     try {
-      const tracks = await extractSubtitles(filePath);
+      const tracks = []
       setSubtitleTracks(tracks);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Unknown error occurred'));
