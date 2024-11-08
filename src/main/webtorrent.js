@@ -1,3 +1,5 @@
+const path = require('path')
+
 // src/main/webtorrent.js
 // This file has to be a Javascript file due to transpilation issues when
 // loading it from main/index.ts
@@ -23,22 +25,25 @@ async function handleAddTorrent(torrentId) {
   const client = new WebTorrent()
   const instance = client.createServer()
   instance.server.listen(0, () => {
-    const port = instance.server.address().port;
-    process.parentPort?.postMessage({ type: 'server-ready', port });
+    const port = instance.server.address().port
+    process.parentPort?.postMessage({ type: 'server-ready', port })
   })
 
   client.add(torrentId, async (torrent) => {
     const fileName = encodeURIComponent(torrent.files[0].name)
     const url = `http://localhost:${instance.server.address().port}/webtorrent/${torrent.infoHash}/${fileName}`
 
-    console.log(url)
-
     torrent.on('done', () => {
       process.parentPort?.postMessage({ type: 'torrent-done' })
       process.parentPort?.postMessage({
         type: 'torrent-server-done',
         data: {
-          url
+          url,
+          filePath: path.join(
+            process.env.TEMP || process.env.TMP,
+            'webtorrent',
+            torrent.files[0].name
+          )
         }
       })
     })

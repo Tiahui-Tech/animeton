@@ -1,11 +1,15 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useTorrentStream } from './hooks/useTorrentStream'
+import { useSubtitles } from './hooks/useSubtitles'
+import { useSubtitleExtractor } from './hooks/useSubtitleExtractor'
 import { Progress } from '@nextui-org/react'
 
 function App(): JSX.Element {
-  const [torrentId] = useState(
-    'https://t.erai-raws.info/Torrent/2024/Summer/Kami no Tou/[Erai-raws] Kami no Tou - Ouji no Kikan - 13 [1080p][Multiple Subtitle].mkv.torrent'
-  )
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  const [torrentId] = useState('https://nyaa.si/download/1876704.torrent')
+  const [isVideoReady, setIsVideoReady] = useState(false)
+  const [mkvFilePath, setMkvFilePath] = useState<string | null>(null)
 
   const {
     torrent,
@@ -18,8 +22,50 @@ function App(): JSX.Element {
     remaining
   } = useTorrentStream(torrentId)
 
+  const { loadSubtitlesFromFile } = useSubtitles(
+    videoRef,
+    isVideoReady
+  )
+
+  const { subtitleTracks, isExtracting, error, extractSubtitles } = useSubtitleExtractor()
+
+  const handleVideoReady = useCallback(() => {
+    setIsVideoReady(true)
+  }, [])
+
+  const handleVideoPlay = useCallback(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch((error) => {
+        console.error('Error playing video:', error)
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleTorrentServerDone = (event: any, data: any) => {
+      const { url, filePath } = data
+      if (videoRef.current) {
+        videoRef.current.src = url
+      }
+      setMkvFilePath(filePath)
+    }
+
+    window.api.onTorrentServerDone(handleTorrentServerDone)
+
+    return () => {
+      window.api.removeTorrentServerDone(handleTorrentServerDone)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (mkvFilePath) {
+      console.log('mkvFilePath', mkvFilePath)
+      extractSubtitles(mkvFilePath)
+    }
+  }, [mkvFilePath])
+
   return (
-    <div className="dark flex flex-col h-screen bg-gray-100 p-4">
+    <div className="dark flex flex-col justify-center items-center gap-4 h-screen bg-gray-100 p-4">
       <div className="mb-4">
         {progress !== 100 && (
           <Progress
@@ -31,10 +77,13 @@ function App(): JSX.Element {
         )}
         <video
           id="output"
+          ref={videoRef}
           className="w-full mt-4 rounded-lg shadow-lg"
           controls
-          autoPlay
-        ></video>
+          onCanPlay={handleVideoReady}
+          onPlay={handleVideoPlay}
+          crossOrigin="anonymous"
+        />
       </div>
       <div className="bg-white rounded-lg shadow-md p-4">
         <div className="mb-2">
@@ -70,6 +119,23 @@ function App(): JSX.Element {
           </div>
         </div>
       </div>
+      <input
+        type="file"
+        accept=".ass"
+        onChange={(e) => {
+          if (e.target.files && e.target.files[0]) {
+            loadSubtitlesFromFile(e.target.files[0])
+          }
+        }}
+      />
+      {/* {isExtracting && <p>Extracting subtitles...</p>}
+      {error && <p>Error extracting subtitles: {error.message}</p>}
+      {subtitleTracks.map((track) => (
+        <div key={track.number}>
+          <h3>{track.name} ({track.language})</h3>
+          <p>{track.subtitles.length} subtitles</p>
+        </div>
+      ))} */}
     </div>
   )
 }

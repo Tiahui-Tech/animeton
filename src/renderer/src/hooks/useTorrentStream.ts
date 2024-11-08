@@ -37,15 +37,6 @@ function useTorrentStream(torrentId: string) {
       document.body.className += ' is-seed'
     }
 
-    const handleTorrentServerDone = (event: any, data: any) => {
-      const { url } = data
-      const player = document.querySelector<HTMLVideoElement>('#output')
-      if (player) {
-        player.src = url
-        player.play()
-      }
-    }
-
     const handleTorrentError = (event: any, data: any) => {
       console.error('Torrent error:', data.message)
       alert('Error: ' + data.message)
@@ -53,13 +44,11 @@ function useTorrentStream(torrentId: string) {
 
     window.api.onTorrentProgress(handleTorrentProgress)
     window.api.onTorrentDone(handleTorrentDone)
-    window.api.onTorrentServerDone(handleTorrentServerDone)
     window.api.onTorrentError(handleTorrentError)
 
     return () => {
       window.api.removeTorrentProgress(handleTorrentProgress)
       window.api.removeTorrentDone(handleTorrentDone)
-      window.api.removeTorrentServerDone(handleTorrentServerDone)
       window.api.removeTorrentError(handleTorrentError)
     }
   }, [torrentId])

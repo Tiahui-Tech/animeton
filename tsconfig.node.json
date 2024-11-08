@@ -5,7 +5,7 @@
     "electron.vite.config.*",
     "src/main/**/*",
     "src/preload/**/*"
-  ],
+, "src/renderer/src/controllers"  ],
   "compilerOptions": {
     "composite": true,
     "types": ["electron-vite/node"],
